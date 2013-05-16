@@ -1,6 +1,7 @@
 #include "Display.h"
 #include "FastSPI_LED2.h"
 #include "Bitmap.h"
+#include "Debug.h"
 
 WS2811Controller800Mhz<6> ledStrip;
 
@@ -179,17 +180,17 @@ void Display::displayLine(int bitmapSectionX) {
     const int adjustedBitmapSectionX = bitmapX % BITMAP_SECTION_WIDTH;
     
     // Bitmap
-    memcpy(pixels, BITMAP_GRB[adjustedSection][adjustedBitmapSectionX], Display::HEIGHT * sizeof(CGRB));
+    memcpy(&pixels[section * Display::HEIGHT], BITMAP_GRB[adjustedSection][adjustedBitmapSectionX], Display::HEIGHT * sizeof(CGRB));
     
     // Overlays
-    for (int bitmapY = 0; bitmapY < Display::HEIGHT; bitmapY++) {
-      if (isReticlePixel(bitmapX, bitmapY))  // Reticle
-        pixels[bitmapY] = RETICLE_COLOR;
-      else if (isTargetPixel(bitmapX, bitmapY))  // Target
-        pixels[bitmapY] = TARGET_COLOR;
-      else if (isAnimationPixel(bitmapX, bitmapY))  // Animation
-        pixels[bitmapY] = animationColor;
-    }
+//    for (int bitmapY = 0; bitmapY < Display::HEIGHT; bitmapY++) {
+//      if (isReticlePixel(bitmapX, bitmapY))  // Reticle
+//        pixels[bitmapY] = RETICLE_COLOR;
+//      else if (isTargetPixel(bitmapX, bitmapY))  // Target
+//        pixels[bitmapY] = TARGET_COLOR;
+//      else if (isAnimationPixel(bitmapX, bitmapY))  // Animation
+//        pixels[bitmapY] = animationColor;
+//    }
   }
   
   ledStrip.showRGB((byte*)pixels, Display::NUM_LEDS);

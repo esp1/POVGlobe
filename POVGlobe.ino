@@ -56,13 +56,6 @@ unsigned long previousInterruptMicros = micros();  // Previous interrupt time in
 void setup() {
   // Status led pin
   pinMode(STATUS_PIN, OUTPUT);
-  
-#ifdef DEBUG
-  // Open serial communications for debug
-  Serial.begin(57600);
-  delay(1000);
-  DPRINTLN("POV Globe");
-#endif
 
   // Instantiate display
   display = new Display();
@@ -73,6 +66,13 @@ void setup() {
   // Set interrupt for rotation sensor
   pinMode(ROTATION_SENSOR_PIN, INPUT);
   attachInterrupt(ROTATION_SENSOR_PIN, calculateDisplayTiming, FALLING);
+  
+#ifdef DEBUG
+  // Open serial communications for debug
+  Serial.begin(57600);
+  delay(1000);
+  DPRINTLN("POV Globe");
+#endif
 }
 
 // Loop //////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ void loop() {
     // Mark expected end of interval for displaying this line
     const unsigned long intervalEndMicros = previousInterruptMicros + ((bitmapSectionX + 1) * displayIntervalMicros);
     
-    processSerial();
+//    processSerial();
     display->displayLine(bitmapSectionX);
     
     // Calculate additional delay to end of interval
