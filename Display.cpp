@@ -182,16 +182,15 @@ void Display::displayLine(int bitmapX) {
     memcpy(&pixels[section * Display::HEIGHT], BITMAP_GRB[adjustedSection][adjustedBitmapSectionX], Display::HEIGHT * sizeof(CGRB));
     
     // Overlays
-    for (int bitmapY = 0; bitmapY < Display::HEIGHT; bitmapY++) {
-      if (isReticlePixel(bitmapX, bitmapY))  // Reticle
-        pixels[bitmapY] = RETICLE_COLOR;
-      else if (isTargetPixel(bitmapX, bitmapY))  // Target
-        pixels[bitmapY] = TARGET_COLOR;
-      else if (isAnimationPixel(bitmapX, bitmapY))  // Animation
-        pixels[bitmapY] = animationColor;
-    }
+//    for (int bitmapY = 0; bitmapY < Display::HEIGHT; bitmapY++) {
+//      if (isReticlePixel(bitmapX, bitmapY))  // Reticle
+//        pixels[bitmapY] = RETICLE_COLOR;
+//      else if (isTargetPixel(bitmapX, bitmapY))  // Target
+//        pixels[bitmapY] = TARGET_COLOR;
+//      else if (isAnimationPixel(bitmapX, bitmapY))  // Animation
+//        pixels[bitmapY] = animationColor;
+//    }
   }
-  DPRINTLN();
   
   ledStrip.showRGB((byte*)pixels, Display::NUM_LEDS);
 }

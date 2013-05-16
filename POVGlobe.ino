@@ -90,7 +90,7 @@ void loop() {
     // Mark expected end of interval for displaying this line
     const unsigned long intervalEndMicros = previousInterruptMicros + ((bitmapX + 1) * displayIntervalMicros);
     
-    processSerial();
+//    processSerial();
     display->displayLine(bitmapX);
     
     // Calculate additional delay to end of interval
@@ -111,7 +111,7 @@ void loop() {
     }
   }
   // Advance animation
-  display->advanceAnimation();
+//  display->advanceAnimation();
   
   // Show status
   digitalWrite(STATUS_PIN, status);
