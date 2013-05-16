@@ -94,23 +94,21 @@ void loop() {
     display->displayLine(bitmapSectionX);
     
     // Calculate additional delay to end of interval
-    const unsigned long delayMicros = intervalEndMicros - micros();
-    if (delayMicros > 0) {
+    const unsigned long now = micros();
+    if (intervalEndMicros > now) {
       // Delay to end of interval
-      delayMicroseconds(delayMicros);
+      delayMicroseconds(intervalEndMicros - now);
     } else {
       // Error condition: iteration has taken longer than the allotted interval
       status = LOW;
-      DPRINTLN("Display interval ");
-      DPRINTLN(displayIntervalMicros);
-      DPRINTLN(" expected end ");
-      DPRINTLN(intervalEndMicros);
-      DPRINTLN(" overrun by ");
-      DPRINTLN(-delayMicros);
+      DPRINT("Display interval ");
+      DPRINT(displayIntervalMicros);
+      DPRINT(" expected end ");
+      DPRINT(intervalEndMicros);
+      DPRINT(" overrun by ");
+      DPRINT(now - intervalEndMicros);
       DPRINTLN(" microseconds");
     }
-    
-    DPRINTLN(micros() - startTime);
   }
   // Advance animation
   display->advanceAnimation();
