@@ -171,27 +171,27 @@ boolean isAnimationPixel(int x, int y) {
 
 // Display ///////////////////////////////////////////////////////////
 
-void Display::displayLine(int bitmapSectionX) {
+void Display::displayLine(int bitmapX) {
   for (int section = 0; section < Display::NUM_SECTIONS; section++) {
     const int sectionOffset = section * BITMAP_SECTION_WIDTH;
-    const int bitmapX = (bitmapXOffset + sectionOffset + bitmapSectionX) % BITMAP_WIDTH;
-    
-    const int adjustedSection = bitmapX / BITMAP_SECTION_WIDTH;
+    const int adjustedBitmapX = (bitmapXOffset + sectionOffset + bitmapX) % BITMAP_WIDTH;
+    const int adjustedSection = adjustedBitmapX / BITMAP_SECTION_WIDTH;
     const int adjustedBitmapSectionX = bitmapX % BITMAP_SECTION_WIDTH;
     
     // Bitmap
     memcpy(&pixels[section * Display::HEIGHT], BITMAP_GRB[adjustedSection][adjustedBitmapSectionX], Display::HEIGHT * sizeof(CGRB));
     
     // Overlays
-//    for (int bitmapY = 0; bitmapY < Display::HEIGHT; bitmapY++) {
-//      if (isReticlePixel(bitmapX, bitmapY))  // Reticle
-//        pixels[bitmapY] = RETICLE_COLOR;
-//      else if (isTargetPixel(bitmapX, bitmapY))  // Target
-//        pixels[bitmapY] = TARGET_COLOR;
-//      else if (isAnimationPixel(bitmapX, bitmapY))  // Animation
-//        pixels[bitmapY] = animationColor;
-//    }
+    for (int bitmapY = 0; bitmapY < Display::HEIGHT; bitmapY++) {
+      if (isReticlePixel(bitmapX, bitmapY))  // Reticle
+        pixels[bitmapY] = RETICLE_COLOR;
+      else if (isTargetPixel(bitmapX, bitmapY))  // Target
+        pixels[bitmapY] = TARGET_COLOR;
+      else if (isAnimationPixel(bitmapX, bitmapY))  // Animation
+        pixels[bitmapY] = animationColor;
+    }
   }
+  DPRINTLN();
   
   ledStrip.showRGB((byte*)pixels, Display::NUM_LEDS);
 }

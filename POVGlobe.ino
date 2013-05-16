@@ -83,15 +83,15 @@ void loop() {
   interrupt = false;
   
   // Display
-  for (int bitmapSectionX = 0; bitmapSectionX < BITMAP_SECTION_WIDTH; bitmapSectionX++) {
+  for (int bitmapX = 0; bitmapX < BITMAP_WIDTH; bitmapX++) {
     // If an interrupt was received it signals the start of a new display frame, so end this display loop and start over
     if (interrupt) break;
     
     // Mark expected end of interval for displaying this line
-    const unsigned long intervalEndMicros = previousInterruptMicros + ((bitmapSectionX + 1) * displayIntervalMicros);
+    const unsigned long intervalEndMicros = previousInterruptMicros + ((bitmapX + 1) * displayIntervalMicros);
     
-//    processSerial();
-    display->displayLine(bitmapSectionX);
+    processSerial();
+    display->displayLine(bitmapX);
     
     // Calculate additional delay to end of interval
     const unsigned long now = micros();
@@ -123,7 +123,7 @@ void calculateDisplayTiming() {
   interrupt = true;
   
   const unsigned long nowMicros = micros();
-  displayIntervalMicros = (nowMicros - previousInterruptMicros) / (BITMAP_SECTION_WIDTH);
+  displayIntervalMicros = (nowMicros - previousInterruptMicros) / (BITMAP_WIDTH);
   previousInterruptMicros = nowMicros;
 }
 
