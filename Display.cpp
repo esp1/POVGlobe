@@ -14,11 +14,27 @@ Display::Display() {
   clearAllTargets();
   
   memset(blankPixels, 0, Display::NUM_LEDS * sizeof(CGRB));
+
+  // Cycle colors
+  for(int i = 0; i < 3; i++) {
+    for(int iLed = 0; iLed < NUM_LEDS; iLed++) {
+      memset(pixels, 0,  Display::NUM_LEDS * sizeof(CGRB));
+      switch(i) {
+        case 0: pixels[iLed].r = 128; break;
+        case 1: pixels[iLed].g = 128; break;
+        case 2: pixels[iLed].b = 128; break;
+      }
+      ledStrip.showRGB((byte*)pixels, Display::NUM_LEDS);
+    }
+  }
   
   // Turn all lights on for 1 sec
   memset(pixels, 255, Display::NUM_LEDS * sizeof(CGRB));
   ledStrip.showRGB((byte*)pixels, Display::NUM_LEDS);
   delay(1000);
+  
+  // Then off
+  ledStrip.showRGB((byte*)blankPixels, Display::NUM_LEDS);
 }
 
 // Position //////////////////////////////////////////////////////////
