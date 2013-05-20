@@ -5,8 +5,8 @@
 
 WS2811Controller800Mhz<6> ledStrip;
 
-CGRB pixels[Display::NUM_LEDS];  // Assuming LED strips are wired in series
-CGRB blankPixels[Display::NUM_LEDS];  // Assuming LED strips are wired in series
+CRGB pixels[Display::NUM_LEDS];  // Assuming LED strips are wired in series
+CRGB blankPixels[Display::NUM_LEDS];  // Assuming LED strips are wired in series
 
 // Display ///////////////////////////////////////////////////////////
 
@@ -14,12 +14,12 @@ Display::Display() {
   ledStrip.init();
   clearAllTargets();
   
-  memset(blankPixels, 0, Display::NUM_LEDS * sizeof(CGRB));
+  memset(blankPixels, 0, Display::NUM_LEDS * sizeof(CRGB));
 
   // Cycle colors
   for(int i = 0; i < 3; i++) {
     for(int iLed = 0; iLed < NUM_LEDS; iLed++) {
-      memset(pixels, 0,  Display::NUM_LEDS * sizeof(CGRB));
+      memset(pixels, 0,  Display::NUM_LEDS * sizeof(CRGB));
       switch(i) {
         case 0: pixels[iLed].r = 128; break;
         case 1: pixels[iLed].g = 128; break;
@@ -30,7 +30,7 @@ Display::Display() {
   }
   
   // Turn all lights on for 1 sec
-  memset(pixels, 255, Display::NUM_LEDS * sizeof(CGRB));
+  memset(pixels, 255, Display::NUM_LEDS * sizeof(CRGB));
   ledStrip.showRGB((byte*)pixels, Display::NUM_LEDS);
   delay(1000);
   
@@ -49,7 +49,7 @@ void Display::setGlobePosition(int x) {
 // Reticle ///////////////////////////////////////////////////////////
 
 const int RETICLE_RADIUS = 2;
-const CGRB RETICLE_COLOR = { 0, 255, 0 };  // Red
+const CRGB RETICLE_COLOR = { 0, 255, 0 };  // Red
 int reticleX = -1;
 int reticleY = -1;
 
@@ -76,7 +76,7 @@ boolean isReticlePixel(int x, int y) {
 
 // Targets ///////////////////////////////////////////////////////////
 
-const CGRB TARGET_COLOR = { 0, 255, 0 };  // Green
+const CRGB TARGET_COLOR = { 0, 255, 0 };  // Green
 // Targets are stored in an array where the array index is the target id and the value is an array that holds the target's x, y location
 const int MAX_TARGETS = 4;  // Maximum number of targets
 int numTargets = 0;
@@ -125,9 +125,9 @@ int animationFrames = -1;  // Number of remaining animation frames. Or -1 if the
 int animationIncrement;  // How much to increment the radius by
 int animationFPI;  // Frames per increment
 
-CGRB animationColor;
-const CGRB ABDUCTION_ANIMATION_COLOR = { 255, 0, 0 };  // Green
-const CGRB SCANNER_ANIMATION_COLOR = { 0, 0, 255 };  // Blue
+CRGB animationColor;
+const CRGB ABDUCTION_ANIMATION_COLOR = { 255, 0, 0 };  // Green
+const CRGB SCANNER_ANIMATION_COLOR = { 0, 0, 255 };  // Blue
 
 // Cuz we're only animating circles
 int animationRadius;
@@ -179,7 +179,7 @@ void Display::displayLine(int bitmapX) {
     const int adjustedBitmapSectionX = bitmapX % BITMAP_SECTION_WIDTH;
     
     // Bitmap
-    memcpy(&pixels[section * Display::HEIGHT], BITMAP_GRB[adjustedSection][adjustedBitmapSectionX], Display::HEIGHT * sizeof(CGRB));
+    memcpy(&pixels[section * Display::HEIGHT], BITMAP[adjustedSection][adjustedBitmapSectionX], Display::HEIGHT * sizeof(CRGB));
     
     // Overlays
 //    for (int bitmapY = 0; bitmapY < Display::HEIGHT; bitmapY++) {

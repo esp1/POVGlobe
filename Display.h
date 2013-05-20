@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 
-typedef struct { byte g; byte r; byte b; } CGRB;
+typedef struct { byte g; byte r; byte b; } CRGB;
 
 class Display {
   public:
