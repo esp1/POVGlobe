@@ -14,17 +14,17 @@ SS460S latching hall effect sensor mounted on rotating part of globe near axis.
 2 magnets with opposing polarities mounted on fixed base of globe near axis.
 Pin 0 - 5V
 Pin 1 - GND
-Pin 2 - 10k pullup resistor to pin 0; also input to pin 2 on Uno (interrupt 0)
+Pin 2 - input to microcontroller (interrupt pin)
 
 There are two LED strips mounted on opposite sides of the globe axis from each other, but wired together in series.
 During one rotation, the code will display half of the desired image on each of the strips.
 The display height is the height of one of the LED strips, but because the strips are wired together in series, the image data sent to the strips
 has a height = the height of both LED strips.
-Also, because the strips are wired in series, the input end of the first strip is at the bottom of the display, while the input end of the second
-strip is at the top. This means that the data in the second strip will be displayed upside down. To compensate for this, the data in the 'top' half
-of the bitmap image (corresponding to the second LED strip) is flipped vertically from the data in the 'bottom' half of the image.
+Note that the strips should be oriented so that the input ends of both strips are at the top of the display. This is because on the back half of the
+rotation the first strip should be showing the same data that was on the second strip during the first half of the rotation, so the image data should have the
+same orientation for both strips.
 
-Image data should be in GRB format.
+Image data should match configuration of LED strip (in our case GRB).
 */
 
 #include "FastSPI_LED2.h"
@@ -64,7 +64,7 @@ void setup() {
   Serial1.begin(115200);
   
   // Set interrupt for rotation sensor
-  pinMode(ROTATION_SENSOR_PIN, INPUT);
+  pinMode(ROTATION_SENSOR_PIN, INPUT_PULLUP);
   attachInterrupt(ROTATION_SENSOR_PIN, calculateDisplayTiming, FALLING);
   
 #ifdef DEBUG
