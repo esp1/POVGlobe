@@ -45,7 +45,7 @@ Display* display;
 
 // Display Timing
 
-#define ROTATION_SENSOR_PIN 16
+#define ROTATION_SENSOR_PIN 17
 boolean interrupt = false;
 
 unsigned long displayIntervalMicros = 500000;  // Interval in microseconds to display a vertical display line
