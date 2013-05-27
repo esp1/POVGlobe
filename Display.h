@@ -3,39 +3,37 @@
 
 #include "Arduino.h"
 
-typedef struct { byte g; byte r; byte b; } CRGB;
-
 class Display {
   public:
-    static const int NUM_SECTIONS = 2;  // Number of sections in the display. A section is a 2-dimensional subsection of the display driven by its own LED strip. All LED strips are equally spaced around the axis, and so all sections have the same area.
-    static const int SECTION_WIDTH = 60;  // Width of each section.
-    static const int SECTION_HEIGHT = 60;  // Height of each section. (= number of leds on each strip)
+    static const int NUM_X_SECTORS = 2;
+    static const int NUM_Y_SECTORS = 1;
     
-    static const int WIDTH = SECTION_WIDTH * NUM_SECTIONS;  // Width of the entire display.
-    static const int HEIGHT = SECTION_HEIGHT;  // Height of the entire display.
+    static const int SECTOR_WIDTH = 60;  // Width of each sector
+    static const int SECTOR_HEIGHT = 60;  // Height of each sector
     
-    static const int NUM_LEDS = SECTION_HEIGHT * NUM_SECTIONS;
+    static const int WIDTH = NUM_X_SECTORS * SECTOR_WIDTH;  // Width of the entire display
+    static const int HEIGHT = NUM_Y_SECTORS * SECTOR_HEIGHT;  // Height of the entire display
     
     Display();
     
-    void displayLine(int displayX);
+    void displayStrips(int bitmapX);
     void displayBlankLine();
     
-    void setGlobePosition(int x);
+    void setGlobePosition(int bitmapX);
     
     // Reticle
     void clearReticle();
-    void setReticle(int x, int y);
+    void setReticle(int bitmapX, int bitmapY);
     
     // Targets
     void clearAllTargets();
     void clearTarget(int id);
-    void setTarget(int id, int x, int y);
+    void setTarget(int id, int bitmapX, int bitmapY);
     
     // Animation
     void clearAnimation();
-    void playAbductionAnimation(int x, int y);
-    void playScannerAnimation(int x, int y);
+    void playAbductionAnimation(int bitmapX, int bitmapY);
+    void playScannerAnimation(int bitmapX, int bitmapY);
     void advanceAnimation();
 };
 

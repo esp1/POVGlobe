@@ -3,8 +3,9 @@ The POV display is made up of a 1-dimensional led light strip that is rotated at
 display.
 
 Terms:
-Display - The entire globe display.
-Line - A 1-dimensional vertical slice of the 2-dimensional display image. Basically represents what an led light strip should be displaying at a given point in time.
+Display - The entire globe display. The display is a rectangular surface that may be subdivided into sectors.
+Sector - A rectangular subsection of the display surface. All of the sectors in the display have the same dimensions and are tiled horizontally and/or vertically to cover the display surface.
+Slice - A 1-dimensional vertical slice of a 2-dimensional sector. Corresponds to a physical led light strip at a particular point in space.
 
 Setup:
 Teensy, hall effect sensor, and light strips are all mounted on rotating part of globe.
@@ -27,7 +28,7 @@ same orientation for both strips.
 Image data should match configuration of LED strip (in our case GRB).
 */
 
-#include "FastSPI_LED2.h"
+#include <OctoWS2811.h>
 
 #include "Bitmap.h"
 #include "Display.h"
@@ -48,7 +49,7 @@ Display* display;
 #define ROTATION_SENSOR_PIN 17
 boolean interrupt = false;
 
-unsigned long displayIntervalMicros = 500000;  // Interval in microseconds to display a vertical display line
+unsigned long displayIntervalMicros = 500000;  // Interval in microseconds to display
 unsigned long previousInterruptMicros = micros();  // Previous interrupt time in microseconds
 
 // Setup /////////////////////////////////////////////////////////////
@@ -90,8 +91,8 @@ void loop() {
     // Mark expected end of interval for displaying this line
     const unsigned long intervalEndMicros = previousInterruptMicros + ((bitmapX + 1) * displayIntervalMicros);
     
-//    processSerial();
-    display->displayLine(bitmapX);
+    processSerial();
+    display->displayStrips(bitmapX);
     
     // Calculate additional delay to end of interval
     const unsigned long now = micros();
@@ -111,7 +112,7 @@ void loop() {
     }
   }
   // Advance animation
-//  display->advanceAnimation();
+  display->advanceAnimation();
   
   // Show status
   digitalWrite(STATUS_PIN, status);

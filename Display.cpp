@@ -1,55 +1,37 @@
+#include <OctoWS2811.h>
+
 #include "Display.h"
-#include "FastSPI_LED2.h"
 #include "Bitmap.h"
 #include "Debug.h"
 
-WS2811Controller800Mhz<6> ledStrip;
+const int DISPLAY_MEMORY_SIZE = Display::SECTOR_HEIGHT * 6;
+DMAMEM int displayMemory[DISPLAY_MEMORY_SIZE];
+int drawingMemory[DISPLAY_MEMORY_SIZE];
 
-CRGB pixels[Display::NUM_LEDS];  // Assuming LED strips are wired in series
-CRGB blankPixels[Display::NUM_LEDS];  // Assuming LED strips are wired in series
+const int config = WS2811_800kHz; // color config is on the PC side
+
+OctoWS2811 leds(Display::SECTOR_HEIGHT, displayMemory, drawingMemory, config);
 
 // Display ///////////////////////////////////////////////////////////
 
 Display::Display() {
-  ledStrip.init();
+  leds.begin();
+  leds.show();
   clearAllTargets();
-  
-  memset(blankPixels, 0, Display::NUM_LEDS * sizeof(CRGB));
-
-  // Cycle colors
-  for(int i = 0; i < 3; i++) {
-    for(int iLed = 0; iLed < NUM_LEDS; iLed++) {
-      memset(pixels, 0,  Display::NUM_LEDS * sizeof(CRGB));
-      switch(i) {
-        case 0: pixels[iLed].r = 128; break;
-        case 1: pixels[iLed].g = 128; break;
-        case 2: pixels[iLed].b = 128; break;
-      }
-      ledStrip.showRGB((byte*)pixels, Display::NUM_LEDS);
-    }
-  }
-  
-  // Turn all lights on for 1 sec
-  memset(pixels, 255, Display::NUM_LEDS * sizeof(CRGB));
-  ledStrip.showRGB((byte*)pixels, Display::NUM_LEDS);
-  delay(1000);
-  
-  // Then off
-  ledStrip.showRGB((byte*)blankPixels, Display::NUM_LEDS);
 }
 
 // Position //////////////////////////////////////////////////////////
 
 int bitmapXOffset = 0;
 
-void Display::setGlobePosition(int x) {
-  bitmapXOffset = x;
+void Display::setGlobePosition(int bitmapX) {
+  bitmapXOffset = bitmapX;
 }
 
 // Reticle ///////////////////////////////////////////////////////////
 
 const int RETICLE_RADIUS = 2;
-const CRGB RETICLE_COLOR = { 0, 255, 0 };  // Red
+const int RETICLE_COLOR = 0xFF0000;  // Red
 int reticleX = -1;
 int reticleY = -1;
 
@@ -58,17 +40,17 @@ void Display::clearReticle() {
   reticleY = -1;
 }
 
-void Display::setReticle(int x, int y) {
-  reticleX = x;
-  reticleY = y;
+void Display::setReticle(int bitmapX, int bitmapY) {
+  reticleX = bitmapX;
+  reticleY = bitmapY;
 }
 
-boolean isReticlePixel(int x, int y) {
+boolean isReticlePixel(int bitmapX, int bitmapY) {
   if (reticleX < 0 || reticleY < 0) return false;
 
   // Square with side length = RETICLE_RADIUS * 2
-  const int diffX = abs(x - reticleX);
-  const int diffY = abs(y - reticleY);
+  const int diffX = abs(bitmapX - reticleX);
+  const int diffY = abs(bitmapY - reticleY);
   return
     diffX == RETICLE_RADIUS && diffY <= RETICLE_RADIUS ||
     diffY == RETICLE_RADIUS && diffX <= RETICLE_RADIUS;
@@ -76,7 +58,7 @@ boolean isReticlePixel(int x, int y) {
 
 // Targets ///////////////////////////////////////////////////////////
 
-const CRGB TARGET_COLOR = { 0, 255, 0 };  // Green
+const int TARGET_COLOR = 0x00FF00;  // Green
 // Targets are stored in an array where the array index is the target id and the value is an array that holds the target's x, y location
 const int MAX_TARGETS = 4;  // Maximum number of targets
 int numTargets = 0;
@@ -98,21 +80,21 @@ void Display::clearTarget(int id) {
   }
 }
 
-void Display::setTarget(int id, int x, int y) {
+void Display::setTarget(int id, int bitmapX, int bitmapY) {
   if (id >= 0 && id < MAX_TARGETS) {
     int* target = targets[id];
     if (target[0] < 0 && target[1] < 0) {
-      target[0] = x;
-      target[1] = y;
+      target[0] = bitmapX;
+      target[1] = bitmapY;
       numTargets += 1;
     }
   }
 }
 
-boolean isTargetPixel(int x, int y) {
+boolean isTargetPixel(int bitmapX, int bitmapY) {
   for (int i = 0; i < MAX_TARGETS; i++) {
-    if (targets[i][0] == x &&
-        targets[i][1] == y)
+    if (targets[i][0] == bitmapX &&
+        targets[i][1] == bitmapY)
       return true;
   }
   
@@ -125,9 +107,9 @@ int animationFrames = -1;  // Number of remaining animation frames. Or -1 if the
 int animationIncrement;  // How much to increment the radius by
 int animationFPI;  // Frames per increment
 
-CRGB animationColor;
-const CRGB ABDUCTION_ANIMATION_COLOR = { 255, 0, 0 };  // Green
-const CRGB SCANNER_ANIMATION_COLOR = { 0, 0, 255 };  // Blue
+int animationColor;
+const int ABDUCTION_ANIMATION_COLOR = 0x00FF00;  // Green
+const int SCANNER_ANIMATION_COLOR = 0x0000FF;  // Blue
 
 // Cuz we're only animating circles
 int animationRadius;
@@ -136,7 +118,7 @@ void Display::clearAnimation() {
   animationFrames = -1;
 }
 
-void Display::playAbductionAnimation(int x, int y) {
+void Display::playAbductionAnimation(int bitmapX, int bitmapY) {
   animationColor = ABDUCTION_ANIMATION_COLOR;
   animationRadius = 0;
   animationIncrement = 2;
@@ -144,7 +126,7 @@ void Display::playAbductionAnimation(int x, int y) {
   animationFrames = 100;
 }
 
-void Display::playScannerAnimation(int x, int y) {
+void Display::playScannerAnimation(int bitmapX, int bitmapY) {
   animationColor = SCANNER_ANIMATION_COLOR;
   animationRadius = 0;
   animationIncrement = 1;
@@ -160,42 +142,61 @@ void Display::advanceAnimation() {
   }
 }
 
-boolean isAnimationPixel(int x, int y) {
+boolean isAnimationPixel(int bitmapX, int bitmapY) {
   if (animationFrames < 0) return false;
   
   // Circle
-  const int diffX = abs(x - reticleX);
-  const int diffY = abs(y - reticleY);
+  const int diffX = abs(bitmapX - reticleX);
+  const int diffY = abs(bitmapY - reticleY);
   return abs((diffX * diffX) + (diffY + diffY) - (animationRadius * animationRadius)) <= 1;
 }
 
 // Display ///////////////////////////////////////////////////////////
 
-void Display::displayLine(int bitmapX) {
-  for (int section = 0; section < Display::NUM_SECTIONS; section++) {
-    const int sectionOffset = section * BITMAP_SECTION_WIDTH;
-    const int adjustedBitmapX = (bitmapXOffset + sectionOffset + bitmapX) % BITMAP_WIDTH;
-    const int adjustedSection = adjustedBitmapX / BITMAP_SECTION_WIDTH;
-    const int adjustedBitmapSectionX = bitmapX % BITMAP_SECTION_WIDTH;
-    
-    // Bitmap
-    memcpy(&pixels[section * Display::HEIGHT], BITMAP[adjustedSection][adjustedBitmapSectionX], Display::HEIGHT * sizeof(CRGB));
-    
-    // Overlays
-//    for (int bitmapY = 0; bitmapY < Display::HEIGHT; bitmapY++) {
-//      if (isReticlePixel(bitmapX, bitmapY))  // Reticle
-//        pixels[bitmapY] = RETICLE_COLOR;
-//      else if (isTargetPixel(bitmapX, bitmapY))  // Target
-//        pixels[bitmapY] = TARGET_COLOR;
-//      else if (isAnimationPixel(bitmapX, bitmapY))  // Animation
-//        pixels[bitmapY] = animationColor;
-//    }
+int rotateBits(int i, int positionsToRotate) {
+  return (i << positionsToRotate) + (((unsigned int) i) >> (Display::NUM_X_SECTORS - positionsToRotate));
+}
+
+/**
+ * Display data on all physical display strips.
+ */
+void Display::displayStrips(int originalBitmapX) {
+  const int bitmapX = (bitmapXOffset + originalBitmapX) % BITMAP_WIDTH;
+  const int bitmapSliceIndex = bitmapX % BITMAP_SECTOR_WIDTH;
+  const int initialXSector = bitmapX / BITMAP_SECTOR_WIDTH;
+  
+  // Display all strips with this bitmap slice index
+  memcpy(drawingMemory, BITMAP[bitmapSliceIndex], sizeof(drawingMemory));
+  
+  // rewrite strip data for appropriate output pin mapping
+  for (int i = 0; i < DISPLAY_MEMORY_SIZE; i++) {
+    const int intValue = drawingMemory[i];
+    drawingMemory[i] = rotateBits(intValue & 0xFF000000, initialXSector) |
+                       rotateBits(intValue & 0x00FF0000, initialXSector) |
+                       rotateBits(intValue & 0x0000FF00, initialXSector) |
+                       rotateBits(intValue & 0x000000FF, initialXSector);
   }
   
-  ledStrip.showRGB((byte*)pixels, Display::NUM_LEDS);
+  // Overlays
+  for (int bitmapY = 0; bitmapY < BITMAP_HEIGHT; bitmapY++) {
+    int color = -1;
+    
+    if (isReticlePixel(bitmapX, bitmapY))  // Reticle
+      color = RETICLE_COLOR;
+    else if (isTargetPixel(bitmapX, bitmapY))  // Target
+      color = TARGET_COLOR;
+    else if (isAnimationPixel(bitmapX, bitmapY))  // Animation
+      color = animationColor;
+    
+    if (color >= 0)
+      leds.setPixel(bitmapX * Display::SECTOR_HEIGHT + bitmapY, color);
+  }
+  
+  leds.show();
 }
 
 void Display::displayBlankLine() {
-  ledStrip.showRGB((byte*)blankPixels, Display::NUM_LEDS);
+  memcpy(drawingMemory, 0, sizeof(drawingMemory));
+  leds.show();
 }
 
