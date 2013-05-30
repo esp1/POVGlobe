@@ -9,15 +9,45 @@ DMAMEM int displayMemory[DISPLAY_MEMORY_SIZE];
 int drawingMemory[DISPLAY_MEMORY_SIZE];
 
 const int config = WS2811_800kHz; // color config is on the PC side
+//const int config = WS2811_GRB | WS2811_800kHz;
 
 OctoWS2811 leds(Display::SECTOR_HEIGHT, displayMemory, drawingMemory, config);
 
 // Display ///////////////////////////////////////////////////////////
 
+#define RED    0xFF0000
+#define GREEN  0x00FF00
+#define BLUE   0x0000FF
+#define YELLOW 0xFFFF00
+#define PINK   0xFF1088
+#define ORANGE 0xE05800
+#define WHITE  0xFFFFFF
+
+void colorWipe(int color, int wait) {
+  for (int i=0; i < leds.numPixels(); i++) {
+    leds.setPixel(i, color);
+    leds.show();
+    delayMicroseconds(wait);
+  }
+}
+
 Display::Display() {
   leds.begin();
   leds.show();
   clearAllTargets();
+  
+  int microsec = 2000000 / leds.numPixels();  // change them all in 2 seconds
+
+  // uncomment for voltage controlled speed
+  // millisec = analogRead(A9) / 40;
+
+  colorWipe(RED, microsec);
+  colorWipe(GREEN, microsec);
+  colorWipe(BLUE, microsec);
+  colorWipe(YELLOW, microsec);
+  colorWipe(PINK, microsec);
+  colorWipe(ORANGE, microsec);
+  colorWipe(WHITE, microsec);
 }
 
 // Position //////////////////////////////////////////////////////////
@@ -163,18 +193,15 @@ int rotateBits(int i, int positionsToRotate) {
 void Display::displayStrips(int originalBitmapX) {
   const int bitmapX = (bitmapXOffset + originalBitmapX) % BITMAP_WIDTH;
   const int bitmapSliceIndex = bitmapX % BITMAP_SECTOR_WIDTH;
-  const int initialXSector = bitmapX / BITMAP_SECTOR_WIDTH;
+  const int xSector = bitmapX / BITMAP_SECTOR_WIDTH;
   
   // Display all strips with this bitmap slice index
   memcpy(drawingMemory, BITMAP[bitmapSliceIndex], sizeof(drawingMemory));
   
   // rewrite strip data for appropriate output pin mapping
   for (int i = 0; i < DISPLAY_MEMORY_SIZE; i++) {
-    const int intValue = drawingMemory[i];
-    drawingMemory[i] = rotateBits(intValue & 0xFF000000, initialXSector) |
-                       rotateBits(intValue & 0x00FF0000, initialXSector) |
-                       rotateBits(intValue & 0x0000FF00, initialXSector) |
-                       rotateBits(intValue & 0x000000FF, initialXSector);
+    drawingMemory[i] = (drawingMemory[i] & A_MASKS[xSector] >> (Display::NUM_X_SECTORS - 1 - xSector)) +
+                       (drawingMemory[i] & B_MASKS[xSector] << xSector);
   }
   
   // Overlays
