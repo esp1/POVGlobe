@@ -8,8 +8,7 @@ const int DISPLAY_MEMORY_SIZE = Display::SECTOR_HEIGHT * 6;
 DMAMEM int displayMemory[DISPLAY_MEMORY_SIZE];
 int drawingMemory[DISPLAY_MEMORY_SIZE];
 
-const int config = WS2811_800kHz; // color config is on the PC side
-//const int config = WS2811_GRB | WS2811_800kHz;
+const int config = WS2811_GRB | WS2811_800kHz;
 
 OctoWS2811 leds(Display::SECTOR_HEIGHT, displayMemory, drawingMemory, config);
 
