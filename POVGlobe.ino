@@ -5,7 +5,7 @@ display.
 Terms:
 Display - The entire globe display. The display is a rectangular surface that may be subdivided into sectors.
 Sector - A rectangular subsection of the display surface. All of the sectors in the display have the same dimensions and are tiled horizontally and/or vertically to cover the display surface.
-Slice - A 1-dimensional vertical slice of a 2-dimensional sector. Corresponds to a physical led light strip at a particular point in space.
+Slice - A 1-dimensional vertical slice of a 2-dimensional sector.
 
 Setup:
 Teensy, hall effect sensor, and light strips are all mounted on rotating part of globe.
