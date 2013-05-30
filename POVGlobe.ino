@@ -92,7 +92,7 @@ void loop() {
     const unsigned long intervalEndMicros = previousInterruptMicros + ((bitmapX + 1) * displayIntervalMicros);
     
     processSerial();
-    display->displayStrips(bitmapX);
+    display->show(bitmapX);
     
     // Calculate additional delay to end of interval
     const unsigned long now = micros();

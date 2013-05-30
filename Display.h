@@ -16,8 +16,7 @@ class Display {
     
     Display();
     
-    void displayStrips(int bitmapX);
-    void displayBlankLine();
+    void show(int bitmapX);
     
     void setGlobePosition(int bitmapX);
     

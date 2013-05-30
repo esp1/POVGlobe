@@ -189,7 +189,7 @@ int rotateBits(int i, int positionsToRotate) {
 /**
  * Display data on all physical display strips.
  */
-void Display::displayStrips(int originalBitmapX) {
+void Display::show(int originalBitmapX) {
   const int bitmapX = (bitmapXOffset + originalBitmapX) % BITMAP_WIDTH;
   const int bitmapSliceIndex = bitmapX % BITMAP_SECTOR_WIDTH;
   const int xSector = bitmapX / BITMAP_SECTOR_WIDTH;
@@ -218,11 +218,6 @@ void Display::displayStrips(int originalBitmapX) {
       leds.setPixel(bitmapX * Display::SECTOR_HEIGHT + bitmapY, color);
   }
   
-  leds.show();
-}
-
-void Display::displayBlankLine() {
-  memcpy(drawingMemory, 0, sizeof(drawingMemory));
   leds.show();
 }
 
