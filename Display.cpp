@@ -200,7 +200,7 @@ void Display::show(int originalBitmapX) {
   
   // rewrite strip data for appropriate output pin mapping
   for (int i = 0; i < DISPLAY_MEMORY_SIZE; i++) {
-    drawingMemory[i] = (drawingMemory[i] & A_MASKS[xSector] >> (Display::NUM_X_SECTORS - 1 - xSector)) +
+    drawingMemory[i] = (drawingMemory[i] & A_MASKS[xSector] >> (Display::NUM_X_SECTORS - xSector)) +
                        (drawingMemory[i] & B_MASKS[xSector] << xSector);
   }
   
