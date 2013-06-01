@@ -22,14 +22,6 @@ OctoWS2811 leds(Display::SECTOR_HEIGHT, displayMemory, drawingMemory, config);
 #define ORANGE 0xE05800
 #define WHITE  0xFFFFFF
 
-void colorWipe(int color, int wait) {
-  for (int i=0; i < leds.numPixels(); i++) {
-    leds.setPixel(i, color);
-    leds.show();
-    delayMicroseconds(wait);
-  }
-}
-
 Display::Display() {
   leds.begin();
   leds.show();
@@ -49,6 +41,15 @@ Display::Display() {
   colorWipe(WHITE, microsec);
 }
 
+void Display::colorWipe(int color, int wait) {
+  for (int i=0; i < Display::SECTOR_HEIGHT * Display::NUM_X_SECTORS; i++) {
+    leds.setPixel(i, color);
+    leds.show();
+    delayMicroseconds(wait);
+  }
+  show(0);
+  delay(1000);
+}
 // Position //////////////////////////////////////////////////////////
 
 int bitmapXOffset = 0;
@@ -220,4 +221,5 @@ void Display::show(int originalBitmapX) {
   
   leds.show();
 }
+
 

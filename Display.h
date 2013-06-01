@@ -15,6 +15,7 @@ class Display {
     static const int HEIGHT = NUM_Y_SECTORS * SECTOR_HEIGHT;  // Height of the entire display
     
     Display();
+    void colorWipe(int color, int wait);
     
     void show(int bitmapX);
     
