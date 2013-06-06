@@ -8,7 +8,7 @@ const int DISPLAY_MEMORY_SIZE = Display::SECTOR_HEIGHT * 6;
 DMAMEM int displayMemory[DISPLAY_MEMORY_SIZE];
 int drawingMemory[DISPLAY_MEMORY_SIZE];
 
-const int config = WS2811_GRB | WS2811_800kHz;
+const int config = WS2811_800kHz;
 
 OctoWS2811 leds(Display::SECTOR_HEIGHT, displayMemory, drawingMemory, config);
 
@@ -47,9 +47,8 @@ void Display::colorWipe(int color, int wait) {
     leds.show();
     delayMicroseconds(wait);
   }
-  show(0);
-  delay(1000);
 }
+
 // Position //////////////////////////////////////////////////////////
 
 int bitmapXOffset = 0;
@@ -183,10 +182,6 @@ boolean isAnimationPixel(int bitmapX, int bitmapY) {
 
 // Display ///////////////////////////////////////////////////////////
 
-int rotateBits(int i, int positionsToRotate) {
-  return (i << positionsToRotate) + (((unsigned int) i) >> (Display::NUM_X_SECTORS - positionsToRotate));
-}
-
 /**
  * Display data on all physical display strips.
  */
@@ -196,12 +191,13 @@ void Display::show(int originalBitmapX) {
   const int xSector = bitmapX / BITMAP_SECTOR_WIDTH;
   
   // Display all strips with this bitmap slice index
-  memcpy(drawingMemory, BITMAP[bitmapSliceIndex], sizeof(drawingMemory));
+  const unsigned int *bitmap = BITMAP[bitmapSliceIndex];
   
   // rewrite strip data for appropriate output pin mapping
   for (int i = 0; i < DISPLAY_MEMORY_SIZE; i++) {
-    drawingMemory[i] = (drawingMemory[i] & A_MASKS[xSector] >> (Display::NUM_X_SECTORS - xSector)) +
-                       (drawingMemory[i] & B_MASKS[xSector] << xSector);
+    const unsigned int x = bitmap[i];
+    drawingMemory[i] = ((x & A_MASKS[xSector]) >> (Display::NUM_X_SECTORS - xSector)) |
+                       ((x & B_MASKS[xSector]) << xSector);
   }
   
   // Overlays
